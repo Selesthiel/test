@@ -119,7 +119,7 @@
 
         // Custom tasks
         grunt.registerTask('default', ['jsbeautifier', 'jshint']);
-        grunt.registerTask('commit', ['shell:commit', 'jsbeautifier', 'jshint']);
+        grunt.registerTask('commit', ['shell:commit:commitMessage', 'jsbeautifier', 'jshint']);
 
         /*grunt.registerTask('commit', 'Run git commit', function(commitMessage){
             if (commitMessage === undefined || commitMessage === ""){
