@@ -8,9 +8,7 @@
                 output: process.stdout
             });
 
-            rl.question("Commit message: ", function(answer){
-                // TODO: Log the answer in a database
-                console.log("Commiting with message:", answer);
+            rl.question("", function(answer){
                 grunt.config.set("commitMessage", answer);
                 rl.close();
                 callback();
