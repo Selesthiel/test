@@ -112,7 +112,7 @@
                 return false;
             }
             grunt.config.set("commitMessage", commitMessage);
-            grunt.task.run(['shell:commit']);
+            grunt.task.run(['jsbeautifier', 'jshint', 'shell:commit']);
         });
 
         grunt.registerTask('foo', 'foo task', function(a, b){
