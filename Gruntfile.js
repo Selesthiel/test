@@ -54,6 +54,7 @@
             shell: {
                 commit: {
                     command: function(commitMessage){
+                        console.log(commitMessage);
                         return "git commit -a -m '" + commitMessage + "'";
                     }
                 },
@@ -107,7 +108,7 @@
                 }
             }
 
-        });  
+        });
 
         // Load the grunt plugins
         grunt.loadNpmTasks('grunt-contrib-uglify');
