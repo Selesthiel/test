@@ -54,7 +54,7 @@
             shell: {
                 commit: {
                     command: function(commitMessage){
-                        grunt.log.writeln(this);
+                        grunt.log.writeln(stringify(this.target));
                         return "git commit -a -m '" + commitMessage + "'";
                     }
                 },
