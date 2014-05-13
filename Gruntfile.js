@@ -53,22 +53,57 @@
             },
             shell: {
                 commit: {
-                    command: "git commit -a -m '<%= commitMessage %>'"
+                    command: function(commitMessage){
+                        return "git commit -a -m '" + commitMessage + "'";
+                    }
                 },
                 currentBranch: {
                     command: "git branch",
                     options: {
+                        stdout: false,
                         callback:
                             function(err, stdout, stderr, cb) {
+                                if (err){
+                                    grunt.log.error(this.data.command);
+                                    grunt.fail.warn(stderr);
+                                }
                                 var regex = /\*\s(\S+)/g;
                                 var match = regex.exec(stdout);
                                 grunt.config.set("sourceBranch", match[1]);
+                                grunt.log.writeln("Source branch: " + match[1]);
                                 cb();
                             }
                     }
                 },
                 checkout: {
-                    command: "git checkout <%= checkoutBranch %>"
+                    command: "git checkout <%= checkoutBranch %>",
+                    options: {
+                        stdout: false,
+                        stderr: false,
+                        callback:
+                            function(err, stdout, stderr, callback) {
+                                if (err){
+                                    grunt.log.error(this.data.command);
+                                    grunt.fail.warn(stderr);
+                                }
+                                callback();
+                            }
+                    }
+                },
+                merge: {
+                    command: "git merge <%= checkoutBranch %>",
+                    options: {
+                        stdout: false,
+                        stderr: false,
+                        callback:
+                            function(err, stdout, stderr, callback) {
+                                if (err){
+                                    grunt.log.error(this.data.command);
+                                    grunt.fail.warn(stderr);
+                                }
+                                callback();
+                            }
+                    }
                 }
             }
 
@@ -84,8 +119,9 @@
 
         // Custom tasks
         grunt.registerTask('default', ['jsbeautifier', 'jshint']);
+        grunt.registerTask('commit', ['shell:commit', 'jsbeautifier', 'jshint']);
 
-        grunt.registerTask('commit', 'Run git commit', function(commitMessage){
+        /*grunt.registerTask('commit', 'Run git commit', function(commitMessage){
             if (commitMessage === undefined || commitMessage === ""){
                 grunt.log.error('You forgot the commit message, moron.');
                 grunt.log.writeln("[Usage] > grunt " + this.name + ":'This is your damn commit message here.'");
@@ -93,7 +129,7 @@
             }
             grunt.config.set("commitMessage", commitMessage);
             grunt.task.run(['jsbeautifier', 'jshint', 'shell:commit']);
-        });
+        });*/
 
         grunt.registerTask('build', 'Deploy to target branch', function(targetBranch){
             if (targetBranch === undefined || targetBranch === ""){
@@ -111,3 +147,4 @@
         };
     };
 })();
+
