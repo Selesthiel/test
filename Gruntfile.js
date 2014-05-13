@@ -174,7 +174,6 @@
                 grunt.fail.warn('You forgot the target branch, moron.');
                 return false;
             }
-            var done = this.async();
             grunt.task.run(['shell:currentBranch']);
             grunt.task.run(['shell:pull:<%= currentBranch %>']);
             grunt.task.run(['shell:merge:' + targetBranch]);
