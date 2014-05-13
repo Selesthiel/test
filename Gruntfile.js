@@ -60,7 +60,7 @@
                 currentBranch: {
                     command: "git branch",
                     options: {
-                        stdout: false,
+                        stdout: true,
                         callback:
                             function(err, stdout, stderr, cb) {
                                 if (err){
@@ -70,6 +70,7 @@
                                 var regex = /\*\s(\S+)/g;
                                 var match = regex.exec(stdout);
                                 grunt.config.set("startBranch", match[1]);
+                                grunt.config.set("currentBranch", match[1]);
                                 grunt.log.writeln("start branch: " + match[1]);
                                 cb();
                             }
@@ -80,7 +81,7 @@
                         return "git checkout " + branch;
                     },
                 options: {
-                        stdout: false,
+                        stdout: true,
                         stderr: false,
                         callback:
                             function(err, stdout, stderr, callback) {
@@ -97,7 +98,7 @@
                         return "git merge " + branch;
                     },
                     options: {
-                        stdout: false,
+                        stdout: true,
                         stderr: false,
                         callback:
                             function(err, stdout, stderr, callback) {
@@ -111,10 +112,11 @@
                 },
                 pull: {
                     command: function(branch){
+                        grunt.log.writeln("git pull origin " + branch);
                         return "git pull origin " + branch;
                     },
                     options: {
-                        stdout: false,
+                        stdout: true,
                         stderr: false,
                         callback:
                             function(err, stdout, stderr, callback) {
@@ -131,7 +133,7 @@
                         return "git push origin " + branch;
                     },
                     options: {
-                        stdout: false,
+                        stdout: true,
                         stderr: false,
                         callback:
                             function(err, stdout, stderr, callback) {
@@ -174,10 +176,36 @@
                 grunt.fail.warn('You forgot the target branch, moron.');
                 return false;
             }
+            grunt.config.set('targetBranch', targetBranch);
             grunt.task.run(['shell:currentBranch']);
-            grunt.task.run(['shell:pull:<%= currentBranch %>']);
-            grunt.task.run(['shell:merge:' + targetBranch]);
-            grunt.task.run(['shell:checkout:' + targetBranch]);
+            grunt.task.run(['deploy']);
+        });
+
+        grunt.registerTask('deploy', 'Deploy to target branch', function(){
+            // Pull any changes to the starting branch from origin
+            grunt.task.run(['shell:pull:' + grunt.config.get('startBranch')]);
+
+            // Switch to the target branch
+            grunt.task.run(['shell:checkout:' + grunt.config.get('targetBranch')]);
+
+            // Pull the target branch from origin
+            grunt.task.run(['shell:pull:' + grunt.config.get('targetBranch')]);
+
+            // Merge our changes into the target branch
+            grunt.task.run(['shell:merge:' + grunt.config.get('startBranch')]);
+
+            // Push the changes to the target branch to origin
+            grunt.task.run(['shell:push:' + grunt.config.get('targetBranch')]);
+
+            // Switch to the starting branch
+            grunt.task.run(['shell:checkout:' + grunt.config.get('startBranch')]);
+
+            // Merge our changes back into the starting branch
+            grunt.task.run(['shell:merge:' + grunt.config.get('targetBranch')]);
+
+            // Push the changes to the target branch to origin
+            grunt.task.run(['shell:push:' + grunt.config.get('startBranch')]);
+
         });
 
         var stringify = function(obj){
