@@ -51,42 +51,24 @@
                     }
                 }
             },
-            gitcommit: {
-                commit: {
-                    options: {
-                        verbose: true
-                    },
-                    files: {
-                        src: ["<%= srcFiles %>"]
-                    }
-                }
-            },
-            githooks: {
-                all: {
-                    'pre-commit': 'jsbeautifier jshint',
-
-                    // Will bind the bower:install task
-                    // with a specific template
-                    'post-merge': {
-                        taskNames: 'bower:install',
-                        template: 'path/to/another/template'
-                    }
-                }
-            },
-            shell: {                                // Task
-                listFolders: {                      // Target
-                    options: {                      // Options
-                        stderr: false
-                    },
-                    command: 'ls'
-                },
-                hello: {
-                    command: function(){
-                        return 'echo hello';
-                    }
-                },
+            shell: {
                 commit: {
                     command: "git commit -a -m '<%= commitMessage %>'"
+                },
+                currentBranch: {
+                    command: "git branch",
+                    options: {
+                        callback:
+                            function(err, stdout, stderr, cb) {
+                                var regex = /\*\s(\S+)/g;
+                                var match = regex.exec(stdout);
+                                grunt.config.set("sourceBranch", match[1]);
+                                cb();
+                            }
+                    }
+                },
+                checkout: {
+                    command: "git checkout <%= checkoutBranch %>"
                 }
             }
 
@@ -98,11 +80,9 @@
         grunt.loadNpmTasks('grunt-contrib-jshint');
         grunt.loadNpmTasks('grunt-jsbeautifier');
         grunt.loadNpmTasks('grunt-githooks');
-        grunt.loadNpmTasks('grunt-git');
         grunt.loadNpmTasks('grunt-shell');
 
-        // Default task(s).
-        //grunt.registerTask('default', ['jsbeautifier', 'jshint', 'concat', 'uglify']);
+        // Custom tasks
         grunt.registerTask('default', ['jsbeautifier', 'jshint']);
 
         grunt.registerTask('commit', 'Run git commit', function(commitMessage){
@@ -115,24 +95,15 @@
             grunt.task.run(['jsbeautifier', 'jshint', 'shell:commit']);
         });
 
-        grunt.registerTask('foo', 'foo task', function(a, b){
-            console.log(a);
-        });
-
-        grunt.registerTask('defaulta', 'D:API Server grunt options', function(a, b){
-            var customTasks = [],
-                prop,
-                task;
-            grunt.log.writeln(grunt.config('pkg.name') + ' Grunt Commands');
-            grunt.log.writeln("Usage format> grunt task:arg1:arg2:arg*");
-
-            for (prop in grunt.task._tasks){
-                if (grunt.task._tasks.hasOwnProperty(prop) &&
-                    grunt.task._tasks[prop].meta.info === "Gruntfile"){
-                    task = grunt.task._tasks[prop];
-                    grunt.log.writeln(stringify(task.nameArgs));
-                }
+        grunt.registerTask('build', 'Deploy to target branch', function(targetBranch){
+            if (targetBranch === undefined || targetBranch === ""){
+                grunt.log.writeln("[Usage] > grunt " + this.name + ":branchName");
+                grunt.fail.warn('You forgot the target branch, moron.');
+                return false;
             }
+            grunt.config.set("targetBranch", targetBranch);
+            grunt.config.set("checkoutBranch", targetBranch);
+            grunt.task.run(['shell:currentBranch', 'shell:checkout']);
         });
 
         var stringify = function(obj){
