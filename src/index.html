@@ -1,0 +1,77 @@
+<html>
+<head>
+    <style media="screen" type="text/css">
+        .button{
+            width: 150;
+            height: 25;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            background: linear-gradient(rgba(60, 4, 152, 0.12), rgba(60, 4, 152, 0.48));
+            border: 1px solid black;
+            color: #665512;
+            margin: .25em;
+            border-radius: .25em;
+            text-align: center;
+            font-size: 1.1em;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .button:hover{
+            background: linear-gradient(rgba(60, 4, 152, 0.34), rgba(60, 4, 152, 0.69));
+            color: #b79923;
+        }
+
+        .pass{
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .fail{
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        .testTitle{
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .route{
+            font-size: 1.25em;
+        }
+
+        .params{
+            margin-left: 50px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+<div id="controls">
+    <div id="startTest" class="button">Start Test</div>
+    <div id="selectAll" class="button">Select All Text</div>
+    <hr>
+</div>
+<div id="output">
+
+</div>
+<script type="text/javascript" src="jsdapi.js"></script>
+<script type="text/javascript" src="routeTest.js"></script>
+<script type="text/javascript">
+    document.getElementById("selectAll").onclick = function(evt){
+        var range = document.createRange();
+        var outputElement = document.getElementById("output");
+        range.selectNodeContents(outputElement);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+    };
+
+    document.getElementById("startTest").onclick = function(evt){
+        routeTest.startTest("output");
+    };
+
+</script>
+</body>
+</html>
