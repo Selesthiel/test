@@ -107,7 +107,7 @@
                 }
             }
 
-        });
+        }); 
 
         // Load the grunt plugins
         grunt.loadNpmTasks('grunt-contrib-uglify');
