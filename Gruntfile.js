@@ -1,20 +1,6 @@
 (function(){
     "use strict";
     module.exports = function(grunt){
-        var getCommitMessage = function(err, stdout, stderr, callback){
-            var readline = require('readline');
-            var rl = readline.createInterface({
-                input: process.stdin,
-                output: process.stdout
-            });
-
-            rl.question("", function(answer){
-                grunt.config.set("commitMessage", answer);
-                rl.close();
-                callback();
-            });
-        };
-
         // Project configuration.
         grunt.initConfig({
             pkg: grunt.file.readJSON('package.json'),
@@ -99,12 +85,6 @@
                         return 'echo hello';
                     }
                 },
-                commitMessage: {
-                    command: "echo Enter your commit message: ",
-                    options: {
-                        callback: getCommitMessage
-                    }
-                },
                 commit: {
                     command: "git commit -a -m '<%= commitMessage %>'"
                 }
@@ -123,12 +103,20 @@
 
         // Default task(s).
         //grunt.registerTask('default', ['jsbeautifier', 'jshint', 'concat', 'uglify']);
-        grunt.registerTask('ls', ['shell:commit']);
         grunt.registerTask('default', ['jsbeautifier', 'jshint']);
-        grunt.registerTask('commit', ['shell:commitMessage', 'shell:commit']);
+
+        grunt.registerTask('commit', 'Run git commit', function(commitMessage){
+            if (commitMessage === undefined || commitMessage === ""){
+                grunt.log.error('You forgot the commit message, moron.');
+                grunt.log.writeln("[Usage] > grunt " + this.name + ":'This is your damn commit message here.'");
+                return false;
+            }
+            grunt.config.set("commitMessage", commitMessage);
+            grunt.task.run(['shell:commit']);
+        });
 
         grunt.registerTask('foo', 'foo task', function(a, b){
-
+            console.log(a);
         });
 
         grunt.registerTask('defaulta', 'D:API Server grunt options', function(a, b){
